@@ -11,7 +11,7 @@ export const category = {
         },
         {
             name: "slug",
-            title: "Slug",
+            title: "Category Slug",
             type: "slug",
             options: {
                 source: "name",
@@ -19,6 +19,15 @@ export const category = {
                 slugify: (input: string) => input.toLowerCase().replace(/\s+/g, "-"),
             },
             validation: (Rule: any) => Rule.required(),
+        },
+        {
+            name: "image",
+            title: "Category Image",
+            type: "image",
+            validation: (Rule: any) => Rule.required(),
+            options: {
+                hotspot: true,
+            },
         },
         {
             name: "seo",

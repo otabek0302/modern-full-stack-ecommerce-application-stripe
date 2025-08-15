@@ -1,17 +1,17 @@
-export const banner = {
-    name: "banner",
-    title: "Banner",
+export const section = {
+    name: "section",
+    title: "Section",
     type: "document",
     fields: [
         {
             name: "title",
-            title: "Banner Title",
+            title: "Section Title",
             type: "string",
             validation: (Rule: any) => Rule.required().min(1).max(100),
         },
         {
             name: "slug",
-            title: "Banner Slug",
+            title: "Section Slug",
             type: "slug",
             options: {
                 source: "title",
@@ -22,7 +22,7 @@ export const banner = {
         },
         {
             name: "image",
-            title: "Banner Image",
+            title: "Section Image",
             type: "image",
             options: {
                 hotspot: true,
@@ -43,7 +43,7 @@ export const banner = {
         },
         {
             name: "text",
-            title: "Banner Text",
+            title: "Section Text",
             type: "object",
             fields: [
                 {

@@ -68,10 +68,10 @@ export const product = {
             },
         },
         {
-            name: "inStock",
-            title: "Product In Stock",
-            type: "boolean",
-            initialValue: true,
+            name: "discount",
+            title: "Discount",
+            type: "reference",
+            to: [{ type: "discount" }],
         },
         {
             name: "stockQuantity",
@@ -86,80 +86,30 @@ export const product = {
             type: "object",
             fields: [
                 {
-                    name: "width",
-                    title: "Width (cm)",
-                    type: "number",
-                    validation: (Rule: any) => Rule.min(0),
-                },
-                {
-                    name: "height",
-                    title: "Height (cm)",
-                    type: "number",
-                    validation: (Rule: any) => Rule.min(0),
+                    name: "length",
+                    title: "Length",
+                    type: "boolean",
                 },
                 {
                     name: "weight",
-                    title: "Weight (kg)",
-                    type: "number",
-                    validation: (Rule: any) => Rule.min(0),
+                    title: "Weight",
+                    type: "boolean",
                 },
-            ],
-        },
-        {
-            name: "variants",
-            title: "Product Variants",
-            type: "array",
-            of: [
                 {
-                    type: "object",
-                    fields: [
-                        {
-                            name: "name",
-                            title: "Variant Name",
-                            type: "string",
-                            validation: (Rule: any) => Rule.required(),
-                        },
-                        {
-                            name: "price",
-                            title: "Variant Price",
-                            type: "number",
-                            validation: (Rule: any) => Rule.positive(),
-                        },
-                        {
-                            name: "inStock",
-                            title: "In Stock",
-                            type: "boolean",
-                            initialValue: true,
-                        },
-                        {
-                            name: "stockQuantity",
-                            title: "Stock Quantity",
-                            type: "number",
-                            initialValue: 0,
-                            validation: (Rule: any) => Rule.min(0),
-                        },
-                    ],
+                    name: "piece",
+                    title: "Piece",
+                    type: "boolean",
                 },
             ],
         },
         {
-            name: "featured",
-            title: "Featured Product",
-            type: "boolean",
-            initialValue: false,
-        },
-        {
-            name: "status",
-            title: "Status",
-            type: "string",
+            name: "features",
+            title: "Features",
+            type: "array",
+            of: [{ type: "string" }],
             options: {
-                list: [
-                    { title: "Draft", value: "draft" },
-                    { title: "Published", value: "published" },
-                    { title: "Archived", value: "archived" },
-                ],
+                layout: "tags",
             },
-            initialValue: "draft",
         },
         {
             name: "seo",
