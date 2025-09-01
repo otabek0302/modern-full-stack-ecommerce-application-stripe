@@ -78,6 +78,12 @@ export const applyFilters = (products: ProductType[], filters: FiltersType): Pro
 };
 
 // Utility functions for discounts and pricing
+/**
+ * Calculate the discounted price for a product (old signature for backward compatibility)
+ * @param originalPrice - The original price
+ * @param discount - The discount object
+ * @returns Object with finalPrice, discountAmount, and isDiscounted
+ */
 export function calculateDiscountedPrice(
     originalPrice: number,
     discount?: {
@@ -111,6 +117,31 @@ export function calculateDiscountedPrice(
         isDiscounted: true,
     };
 }
+
+/**
+ * Calculate the discounted price for a product (new signature for checkout system)
+ * @param product - The product object
+ * @returns The discounted price or original price if no discount
+ */
+export const getDiscountedPrice = (product: ProductType): number => {
+    if (!product.discount?.isActive) return product.price;
+
+    const now = new Date();
+    const startDate = new Date(product.discount.startDate);
+    const endDate = new Date(product.discount.endDate);
+
+    if (now < startDate || now > endDate) return product.price;
+
+    if (product.discount.discountType === "percentage") {
+        return product.price * (1 - product.discount.discount / 100);
+    }
+
+    if (product.discount.discountType === "fixed") {
+        return Math.max(0, product.price - product.discount.discount);
+    }
+
+    return product.price;
+};
 
 export function formatPrice(price: number): string {
     return new Intl.NumberFormat("en-US", {

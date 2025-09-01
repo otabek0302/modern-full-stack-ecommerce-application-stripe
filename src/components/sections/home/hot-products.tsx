@@ -57,7 +57,7 @@ const HotProducts = ({ products }: { products: ProductType[] }) => {
 
                             {/* Product Image */}
                             <div className="relative w-full h-64 mb-4 overflow-hidden rounded-xl">
-                                <Image src={urlFor(featuredProduct.images[0]).url()} alt={featuredProduct.name} fill className="object-cover object-center hover:scale-105 transition-transform duration-300" />
+                                <Image src={urlFor(featuredProduct.images[0]).url()} alt={featuredProduct.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover object-center hover:scale-105 transition-transform duration-300" />
                             </div>
 
                             {/* Product Info */}

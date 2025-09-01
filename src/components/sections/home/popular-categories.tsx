@@ -31,7 +31,7 @@ const PopularCategories = ({ categories }: { categories: CategoryType[] }) => {
                             <Card className="group cursor-pointer hover:border-primary transition-all duration-200 shadow-none hover:shadow-[2px_2px_10px_#1B5FFE50]">
                                 <CardContent className="p-4 flex flex-col items-center justify-center">
                                     <div className="relative w-32 h-32 mb-4 overflow-hidden">
-                                        <Image src={urlFor(category.image).url()} alt={category.name} fill className="object-contain object-center" />
+                                        <Image src={urlFor(category.image).url()} alt={category.name} fill sizes="128px" className="object-contain object-center" />
                                     </div>
                                     <h4 className="text-gray-900 text-base font-medium group-hover:text-primary transition-colors">{category.name}</h4>
                                 </CardContent>

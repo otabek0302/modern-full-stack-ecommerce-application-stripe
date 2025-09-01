@@ -33,7 +33,7 @@ const DiscountBanners = ({ sections }: { sections: SectionType[] }) => {
                                     </Link>
                                 </Button>
                             </div>
-                            <Image src={urlFor(banner_1.image).url()} alt={banner_1.title} fill className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
+                            <Image src={urlFor(banner_1.image).url()} alt={banner_1.title} fill sizes="(max-width: 1200px) 100vw, 50vw" className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover:from-black/80 transition-all duration-300" />
                         </div>
                     )}
@@ -54,7 +54,7 @@ const DiscountBanners = ({ sections }: { sections: SectionType[] }) => {
                                     </Link>
                                 </Button>
                             </div>
-                            <Image src={urlFor(banner_2.image).url()} alt={banner_2.title} fill className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
+                            <Image src={urlFor(banner_2.image).url()} alt={banner_2.title} fill sizes="(max-width: 1200px) 100vw, 25vw" className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover:from-black/80 transition-all duration-300" />
                         </div>
                     )}
@@ -75,7 +75,7 @@ const DiscountBanners = ({ sections }: { sections: SectionType[] }) => {
                                     </Link>
                                 </Button>
                             </div>
-                            <Image src={urlFor(banner_3.image).url()} alt={banner_3.title} fill className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
+                            <Image src={urlFor(banner_3.image).url()} alt={banner_3.title} fill sizes="(max-width: 1200px) 100vw, 25vw" className="object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-300" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent group-hover:from-black/80 transition-all duration-300" />
                         </div>
                     )}

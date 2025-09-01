@@ -23,7 +23,6 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState<ProductType | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState("descriptions");
 
     useEffect(() => {
@@ -83,11 +82,7 @@ const ProductDetailPage = () => {
 
     const { finalPrice, discountAmount, isDiscounted } = calculateDiscountedPrice(product.price, product.discount);
     const inStock = product.stockQuantity > 0;
-    const discountPercentage = isDiscounted && product.discount?.discountType === "percentage" ? product.discount.discount : isDiscounted ? Math.round(((product.price - finalPrice) / product.price) * 100) : 0;
-
-    const handleQuantityChange = (newQuantity: number) => {
-        setQuantity(newQuantity);
-    };
+    const discountPercentage = isDiscounted && product.discount?.discountType === "percentage" ? product.discount.discount : isDiscounted ? Math.round(((product.price - finalPrice) / product.price) * 100) : 0
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -101,7 +96,7 @@ const ProductDetailPage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                 {/* Product Images */}
-                <ProductImages images={product.images} selectedImage={selectedImage} onImageSelect={setSelectedImage} />
+                <ProductImages images={product.images as []} selectedImage={selectedImage} onImageSelect={setSelectedImage} />
 
                 {/* Product Info */}
                 <div className="space-y-6">

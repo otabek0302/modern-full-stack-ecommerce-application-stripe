@@ -20,7 +20,7 @@ const PostCard = ({ post }: { post: PostType }) => {
         <div className="bg-white rounded-2xl overflow-hidden shadow-[1px_1px_2px_#1B5FFE20] hover:shadow-[2px_2px_10px_#1B5FFE50] transition-shadow duration-300">
             {/* Image Section */}
             <div className="relative w-full h-48 overflow-hidden bg-gray-200 flex items-center justify-center">
-                <Image src={urlFor(post.image).url()} alt={post.title} fill className="object-cover object-center" />
+                <Image src={urlFor(post.image).url()} alt={post.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover object-center" />
 
                 {/* Date Badge */}
                 <div className="absolute top-4 left-4 bg-white rounded-lg px-3 py-2 shadow-sm">

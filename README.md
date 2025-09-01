@@ -59,16 +59,23 @@ A full-stack, modern e-commerce application built with Next.js 15, featuring a b
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env.local
+   cp env.example .env.local
    ```
    
    Add your configuration:
    ```env
+   # Sanity CMS
    NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
    NEXT_PUBLIC_SANITY_DATASET=production
-   SANITY_API_TOKEN=your_sanity_api_token
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
+   SANITY_DEVELOPMENT_TOKEN=your_sanity_write_token
+   
+   # Stripe Payments
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_or_pk_live_your_key
+   STRIPE_SECRET_KEY=sk_test_or_sk_live_your_key
+   
+   # Site Configuration
+   NEXT_PUBLIC_SITE_URL=https://yourdomain.com
    ```
 
 4. **Run the development server**
@@ -119,20 +126,51 @@ The application is fully responsive with breakpoints:
 - **Tablet**: 768px - 1024px  
 - **Desktop**: > 1024px
 
-## 🚀 Deployment
+## 🚀 Production Deployment
+
+### Prerequisites
+- [ ] Sanity CMS project set up with production dataset
+- [ ] Stripe account activated with live payment processing
+- [ ] Domain name ready for deployment
+- [ ] All environment variables configured
 
 ### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables
-4. Deploy automatically
+1. **Prepare for production:**
+   ```bash
+   npm run build
+   npm run lint
+   ```
+
+2. **Deploy to Vercel:**
+   ```bash
+   npm i -g vercel
+   vercel --prod
+   ```
+
+3. **Configure environment variables in Vercel dashboard:**
+   - Go to your project settings → Environment Variables
+   - Add all production environment variables
+   - Ensure `NODE_ENV=production`
+
+4. **Set up custom domain:**
+   - Configure DNS records
+   - Enable automatic SSL certificates
+   - Set up redirects (www → non-www)
 
 ### Other Platforms
-The app can be deployed to any platform that supports Next.js:
-- Netlify
-- Railway
-- DigitalOcean App Platform
-- AWS Amplify
+- **Netlify**: Configure build commands and environment variables
+- **Railway**: Use Dockerfile for containerized deployment
+- **DigitalOcean App Platform**: Connect GitHub and configure build settings
+- **AWS Amplify**: Full-stack deployment with serverless functions
+
+### Post-Deployment Checklist
+- [ ] Test complete user registration and login flow
+- [ ] Verify Stripe payments work with live keys
+- [ ] Check all environment variables are correctly set
+- [ ] Test order creation and email notifications
+- [ ] Verify SSL certificate is working
+- [ ] Set up monitoring and error tracking
+- [ ] Test mobile responsiveness across devices
 
 ## 🔧 Development
 

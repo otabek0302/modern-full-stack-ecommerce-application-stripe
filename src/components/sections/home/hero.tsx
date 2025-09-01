@@ -30,7 +30,7 @@ const Hero = ({ sections }: { sections: SectionType[] }) => {
                             </Link>
                         </Button>
                     </div>
-                    <Image src={urlFor(hero?.image).url() || ""} fill alt={hero?.text.title || ""} className=" object-cover object-[0%_5%]" />
+                    <Image src={urlFor(hero?.image).url() || ""} fill alt={hero?.text.title || ""} sizes="100vw" priority className=" object-cover object-[0%_5%]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
                 </div>
             </div>

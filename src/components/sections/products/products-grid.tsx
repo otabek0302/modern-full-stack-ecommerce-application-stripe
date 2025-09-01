@@ -24,8 +24,8 @@ const ProductsGrid = ({ products, isLoading }: ProductsGridProps) => {
     if (products.length > 0) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products.map((product: ProductType) => (
-                    <ProductCart key={product._id} product={product} />
+                {products.map((product: ProductType, index: number) => (
+                    <ProductCart key={product._id} product={product} priority={index < 6} />
                 ))}
             </div>
         );

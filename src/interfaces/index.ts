@@ -100,4 +100,89 @@ interface FilterBarProps {
     }) => void;
 }
 
-export type { SectionType, ProductType, CategoryType, ReviewType, PostType, FilterBarProps };
+interface DiscountType {
+    _id: string;
+    discount: number;
+    discountType: "percentage" | "fixed";
+}
+
+interface AddressType {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+}
+
+interface PaymentMethodType {
+    _id: string;
+    name: string;
+    description: string;
+}
+
+interface PaymentStatusType {
+    _id: string;
+    name: string;
+    description: string;
+}
+
+interface OrderType {
+    _id: string;
+    user: UserType;
+    products: ProductType[];
+    address: AddressType;
+    paymentMethod: PaymentMethodType;
+    paymentStatus: PaymentStatusType;
+    discount: DiscountType;
+    totalPrice: number;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface UserType {
+    _id: string;
+    name: string;
+    email: string;
+    password: string;
+    avatar: {
+        _type: 'image';
+        asset: {
+            _type: 'reference';
+            _ref: string;
+        };
+    };
+    phone: string;
+    address: AddressType;
+    wishlist: ProductType[];
+    cart: ProductType[];
+    orders: OrderType[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Country {
+    name: {
+        common: string;
+        official: string;
+    };
+    cca2: string;
+    cca3: string;
+    flag: string;
+    region?: string;
+    subregion?: string;
+    population?: number;
+    currencies?: Record<string, { name: string; symbol: string }>;
+    languages?: Record<string, string>;
+    capital?: string[];
+    timezones?: string[];
+}
+
+interface CountryOption {
+    value: string;
+    label: string;
+    flag: string;
+    code: string;
+}
+
+export type { SectionType, ProductType, CategoryType, ReviewType, PostType, FilterBarProps, UserType, Country, CountryOption, OrderType, AddressType };

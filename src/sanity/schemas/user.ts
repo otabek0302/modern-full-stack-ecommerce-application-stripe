@@ -7,35 +7,26 @@ export const user = {
             name: 'name',
             title: 'Name',
             type: 'string',
-            validation: (Rule: { required: () => any }) => Rule.required()
+            validation: (Rule: { required: () => void }) => Rule.required()
         },
         {
             name: 'email',
             title: 'Email',
             type: 'string',
-            validation: (Rule: { required: () => any; email: () => any }) => Rule.required().email()
+            validation: (Rule: { required: () => void }) => Rule.required()
+        },
+        {
+            name: 'password',
+            title: 'Password',
+            type: 'string',
+            validation: (Rule: { required: () => void }) => Rule.required()
         },
         {
             name: 'avatar',
             title: 'Avatar',
             type: 'image',
-            options: {
-                hotspot: true
-            }
-        },
-        {
-            name: 'roles',
-            title: 'Roles',
-            type: 'array',
-            of: [{ type: 'string' }],
-            options: {
-                list: [
-                    { title: 'Customer', value: 'customer' },
-                    { title: 'Manager', value: 'manager' },
-                    { title: 'Admin', value: 'admin' }
-                ]
-            },
-            validation: (Rule: { required: () => any; min: (value: number) => any }) => Rule.required().min(1)
+            options: { hotspot: true, accept: 'image/*' },
+            readOnly: () => false,
         },
         {
             name: 'phone',
@@ -55,13 +46,40 @@ export const user = {
             ]
         },
         {
-            name: 'preferences',
-            title: 'Preferences',
-            type: 'object',
-            fields: [
-                { name: 'newsletter', title: 'Newsletter Subscription', type: 'boolean', initialValue: false },
-                { name: 'marketing', title: 'Marketing Emails', type: 'boolean', initialValue: false }
-            ]
+            name: 'wishlist',
+            title: 'Wishlist',
+            type: 'array',
+            of: [{ 
+                type: 'reference', 
+                to: [{ type: 'product' }],
+                options: {
+                    disableNew: true
+                }
+            }]
+        },
+        {
+            name: 'cart',
+            title: 'Cart',
+            type: 'array',
+            of: [{ 
+                type: 'reference', 
+                to: [{ type: 'product' }],
+                options: {
+                    disableNew: true
+                }
+            }]
+        },
+        {
+            name: 'orders',
+            title: 'Orders',
+            type: 'array',
+            of: [{ 
+                type: 'reference', 
+                to: [{ type: 'order' }],
+                options: {
+                    disableNew: true
+                }
+            }]
         },
         {
             name: 'createdAt',

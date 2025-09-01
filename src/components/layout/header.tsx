@@ -8,12 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MapPin, Search, Heart, ShoppingBag, Globe, DollarSign, PhoneIcon, Mail, AlignJustify } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { MapPin, Search, Heart, ShoppingBag, Globe, DollarSign, PhoneIcon, Mail, AlignJustify, LogOut, User2 } from "lucide-react";
 import { useStateContext } from "@/contexts/state-context";
+import { useUserContext } from "@/contexts/user-context";
+import { urlFor } from "@/lib/sanity.client";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
-    const { wishlistItems, cartItems, totalPrice } = useStateContext();
+    const router = useRouter();
+    const { wishlistItems, cartItems, totalPrice, isLoadingData } = useStateContext();
+    const { user, isAuthenticated, logout } = useUserContext();
 
     const navigationItems = [
         { name: "Home", href: "/" },
@@ -23,10 +28,14 @@ const Header = () => {
         { name: "FAQ", href: "/faq" },
     ];
 
+    const handleLogout = () => {
+        logout();
+    };
+
     return (
         <header className="w-full">
             {/* Top Bar - Store Location & Language/Currency */}
-            <div className="bg-gray-100 py-2 px-4 hidden md:block">
+            <div className="bg-gray-100 py-3 px-4 hidden md:block">
                 <div className="container mx-auto px-4 lg:px-6">
                     <div className="flex items-center justify-between gap-4">
                         {/* Store Location */}
@@ -39,7 +48,7 @@ const Header = () => {
                         <div className="flex items-center gap-4 text-gray-600 text-sm">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
+                                    <div className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors">
                                         <Globe className="w-4 h-4 text-primary" />
                                         <span className="text-gray-600 text-sm font-medium">Eng</span>
                                     </div>
@@ -61,7 +70,7 @@ const Header = () => {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <div className="flex items-center gap-1 cursor-pointer hover:text-primary">
+                                    <div className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors">
                                         <DollarSign className="w-4 h-4 text-primary" />
                                         <span className="text-gray-600 text-sm font-medium">USD</span>
                                     </div>
@@ -81,15 +90,46 @@ const Header = () => {
 
                             <div className="w-px h-4 bg-gray-600" />
 
-                            <div className="flex gap-2">
-                                <Link href="/auth/login" className="cursor-pointer hover:text-primary">
-                                    <span className="cursor-pointer hover:text-primary">Sign In</span>
-                                </Link>
-                                <span className="text-gray-600 text-sm font-medium">/</span>
-                                <Link href="/auth/register" className="cursor-pointer hover:text-primary">
-                                    <span className="cursor-pointer hover:text-primary">Sign Up</span>
-                                </Link>
-                            </div>
+                            {/* Auth Section */}
+                            {isAuthenticated ? (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <div className="flex items-center gap-3 cursor-pointer hover:text-primary transition-colors">
+                                            <div className="relative w-8 h-8 border-2 border-primary rounded-full overflow-hidden flex items-center justify-center bg-primary/10">{user?.avatar ? <Image src={urlFor(user.avatar.asset._ref).width(240).height(240).fit("crop").url()} alt={user?.name} fill sizes="32px" className="object-cover" /> : <User2 className="w-5 h-5 text-primary" />}</div>
+                                            <div className="flex flex-col items-start gap-0.5">
+                                                <span className="text-gray-600 text-xs font-medium leading-none">{user?.name}</span>
+                                                <span className="text-primary text-[10px] font-medium leading-none">{user?.email}</span>
+                                            </div>
+                                        </div>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="-translate-x-5">
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/profile">Profile</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/profile/orders">Orders</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/profile/settings">Settings</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                                            <LogOut className="w-4 h-4 mr-2" />
+                                            Logout
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <Link href="/auth/sign-in" className="text-gray-600 hover:text-primary transition-colors font-medium">
+                                        Sign In
+                                    </Link>
+                                    <span className="text-gray-600 text-sm font-medium">/</span>
+                                    <Link href="/auth/sign-up" className="text-gray-600 hover:text-primary transition-colors font-medium">
+                                        Sign Up
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -102,7 +142,7 @@ const Header = () => {
                         {/* Logo */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                             <Link href="/" className="relative w-8 h-8">
-                                <Image src="/Ecobazar.svg" alt="Ecobazar" fill className="object-cover" sizes="calc(100vw - 32px) calc(100vw - 32px) calc(100vw - 32px) calc(100vw - 32px)" />
+                                <Image src="/Ecobazar.svg" alt="Ecobazar" fill className="object-cover" sizes="32px" />
                             </Link>
                             <span className="text-xl md:text-2xl font-bold text-gray-900">Ecobazar</span>
                         </div>
@@ -110,23 +150,25 @@ const Header = () => {
                         {/* Search Bar - Hidden on mobile */}
                         <div className="flex-1 max-w-2xl mx-4 hidden md:block relative">
                             <div className="relative flex items-center justify-end">
-                                <Input placeholder="Search" className="w-full pl-4 pr-20 py-5 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0" />
-                                <Button size="sm" className="absolute w-28 h-full bg-primary hover:bg-primary/90 text-white px-14 py-5 rounded-r-xl rounded-l-none cursor-pointer">
+                                <Input placeholder="Search products..." className="w-full pl-4 pr-20 py-5 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0" />
+                                <Button size="sm" className="absolute w-28 h-full bg-primary hover:bg-primary/90 text-white px-14 py-5 rounded-r-xl rounded-l-none cursor-pointer transition-colors">
                                     <Search className="w-5 h-5" />
                                     <span className="text-white">Search</span>
                                 </Button>
                             </div>
-                            {/* <div className="absolute top-2 left-0 translate-y-1/2 bg-gray-100 w-full h-full flex items-center justify-center border-2 border-gray-200 rounded-xl">
-                            </div> */}
                         </div>
 
                         {/* Right Side - Wishlist, Cart, Mobile Menu */}
                         <div className="flex items-center gap-4 md:gap-6">
                             {/* Wishlist - Hidden on mobile */}
-                            <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-primary transition-colors">
+                            <div className="flex flex-col items-center gap-1 cursor-pointer hover:text-primary transition-colors" onClick={() => router.push("/profile/wishlist")}>
                                 <div className="relative">
-                                    <Heart className="w-6 h-6" />
-                                    {wishlistItems.length > 0 && <Badge className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">{wishlistItems.length}</Badge>}
+                                    {isLoadingData ? (
+                                        <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <Heart className="w-6 h-6" />
+                                    )}
+                                    {!isLoadingData && wishlistItems.length > 0 && <Badge className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">{wishlistItems.length}</Badge>}
                                 </div>
                             </div>
 
@@ -134,15 +176,19 @@ const Header = () => {
                             <div className="w-px h-4 bg-gray-600" />
 
                             {/* Shopping Cart */}
-                            <div className="flex items-center gap-4 cursor-pointer hover:text-primary transition-colors">
+                            <div className="flex items-center gap-4 cursor-pointer hover:text-primary transition-colors" onClick={() => router.push("/profile/cart")}>
                                 <div className="relative">
-                                    <ShoppingBag className="w-6 h-6" />
-                                    {cartItems.length > 0 && <Badge className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">{cartItems.length}</Badge>}
+                                    {isLoadingData ? (
+                                        <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <ShoppingBag className="w-6 h-6" />
+                                    )}
+                                    {!isLoadingData && cartItems.length > 0 && <Badge className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">{cartItems.length}</Badge>}
                                 </div>
-                                <p className="hidden md:flex flex-col items-start">
+                                <div className="hidden md:flex flex-col items-start">
                                     <span className="text-xs text-gray-600">Shopping cart:</span>
-                                    <span className="text-sm font-semibold text-primary">${totalPrice.toFixed(2)}</span>
-                                </p>
+                                    <span className="text-sm font-semibold text-primary">${isLoadingData ? '...' : totalPrice.toFixed(2)}</span>
+                                </div>
                             </div>
 
                             {/* Separator */}
@@ -159,16 +205,41 @@ const Header = () => {
                                     <div className="px-4 py-6">
                                         <div className="flex items-center gap-2 mb-6">
                                             <Link href="/" className="relative w-8 h-8">
-                                                <Image src="/Ecobazar.svg" alt="Ecobazar" fill className="object-cover" sizes="calc(100vw - 32px) calc(100vw - 32px) calc(100vw - 32px) calc(100vw - 32px)" />
+                                                <Image src="/Ecobazar.svg" alt="Ecobazar" fill className="object-cover" sizes="32px" />
                                             </Link>
                                             <span className="text-xl font-bold">Ecobazar</span>
                                         </div>
 
+                                        {/* Mobile Auth Status */}
+                                        {isAuthenticated ? (
+                                            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                                                <p className="text-sm text-gray-600">Welcome back,</p>
+                                                <p className="font-medium text-gray-900">{user?.name}</p>
+                                                <div className="mt-3 space-y-2">
+                                                    <Link href="/profile" className="block text-sm text-primary hover:text-primary/80 transition-colors">
+                                                        Profile
+                                                    </Link>
+                                                    <Link href="/profile/orders" className="block text-sm text-primary hover:text-primary/80 transition-colors">
+                                                        Orders
+                                                    </Link>
+                                                    <button onClick={handleLogout} className="block text-sm text-red-600 hover:text-red-700 transition-colors">
+                                                        Logout
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="mb-6">
+                                                <Link href="/auth/sign-in" className="block w-full text-center py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                                    Sign In / Sign Up
+                                                </Link>
+                                            </div>
+                                        )}
+
                                         {/* Mobile Search */}
                                         <div className="mb-6">
                                             <div className="relative flex items-center justify-end">
-                                                <Input placeholder="Search" className="w-full pl-4 pr-12 py-3 border-2 border-gray-200 focus:border-primary focus:ring-0" />
-                                                <Button size="sm" className="absolute right-0 top-0 w-10 h-full bg-primary hover:bg-primary/90 text-white px-4 py-1 rounded-r-md rounded-l-none cursor-pointer">
+                                                <Input placeholder="Search products..." className="w-full pl-4 pr-12 py-3 border-2 border-gray-200 focus:border-primary focus:ring-0" />
+                                                <Button size="sm" className="absolute right-0 top-0 w-10 h-full bg-primary hover:bg-primary/90 text-white px-4 py-1 rounded-r-md rounded-l-none cursor-pointer transition-colors">
                                                     <Search className="w-5 h-5" />
                                                 </Button>
                                             </div>
@@ -186,14 +257,14 @@ const Header = () => {
                                         </nav>
 
                                         {/* Mobile Contact */}
-                                        <div className="mt-4 space-y-4">
-                                            <div className="flex items-center gap-2 text-primary">
+                                        <div className="mt-6 space-y-4">
+                                            <div className="flex items-center gap-3 text-primary">
                                                 <div className="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
                                                     <PhoneIcon className="w-3 h-3 text-white" />
                                                 </div>
                                                 <span className="text-gray-600 text-base font-medium">(123) 456-7890</span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-primary">
+                                            <div className="flex items-center gap-3 text-primary">
                                                 <div className="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
                                                     <Mail className="w-3 h-3 text-white" />
                                                 </div>
@@ -221,23 +292,23 @@ const Header = () => {
                         </div>
 
                         {/* Phone Number */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             {/* Phone */}
-                            <Link href="tel:+1234567890" className="flex items-center gap-2">
+                            <Link href="tel:+1234567890" className="flex items-center gap-2 hover:text-primary transition-colors">
                                 <div className="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
                                     <PhoneIcon className="w-3 h-3 text-white" />
                                 </div>
-                                <span className="-mt-0.5 text-white text-base font-medium">(123) 456-7890</span>
+                                <span className="text-white text-base font-medium">(123) 456-7890</span>
                             </Link>
                             {/* Separator */}
                             <div className="w-px h-4 bg-gray-600" />
 
                             {/* Email */}
-                            <Link href="/auth/login" className="flex items-center gap-2">
+                            <Link href="mailto:info@ecobazar.com" className="flex items-center gap-2 hover:text-primary transition-colors">
                                 <div className="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
                                     <Mail className="w-3 h-3 text-white" />
                                 </div>
-                                <span className="-mt-0.5 text-white text-base font-medium">info@ecobazar.com</span>
+                                <span className="text-white text-base font-medium">info@ecobazar.com</span>
                             </Link>
                         </div>
                     </div>

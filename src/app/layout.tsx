@@ -29,11 +29,11 @@ export const metadata: Metadata = {
         address: false,
         telephone: false,
     },
-    metadataBase: new URL("http://localhost:3000"),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://ecobazar.vercel.app"),
     openGraph: {
         type: "website",
         locale: "en_US",
-        url: "http://localhost:3000",
+        url: process.env.NEXT_PUBLIC_SITE_URL || "https://ecobazar.vercel.app",
         title: "Ecobazar - Modern E-Commerce Store",
         description: "Discover premium products at Ecobazar. Shop the latest trends with secure payments and fast shipping.",
         siteName: "Ecobazar",

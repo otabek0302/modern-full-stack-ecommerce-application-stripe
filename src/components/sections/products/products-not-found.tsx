@@ -11,7 +11,7 @@ const ProductsNotFound = () => {
                 No products available
             </h3>
             <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                We're currently updating our product catalog. 
+                We&apos;re currently updating our product catalog. 
                 Please check back later for new products.
             </p>
         </div>

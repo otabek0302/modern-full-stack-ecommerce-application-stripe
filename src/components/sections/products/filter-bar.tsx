@@ -1,21 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { FilterBarProps } from "@/interfaces";
-import { useState, useEffect, useMemo } from "react";
-import { Filter, Star, ChevronUp, ChevronDown, Brush } from "lucide-react";
+import { Star, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function FilterBar({ categories, tags, minPrice, maxPrice, onFiltersChange }: FilterBarProps) {
-    // Local filter state
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // ---------- Local state ----------
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [selectedRating, setSelectedRating] = useState<string>("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([minPrice, maxPrice]);
-
     const [expandedSections, setExpandedSections] = useState({
         categories: true,
         price: true,
@@ -23,7 +25,7 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
         tags: true,
     });
 
-    // Rating options
+    // ---------- Options ----------
     const ratingOptions = useMemo(
         () => [
             { value: "5.0", stars: 5, label: "5.0" },
@@ -35,88 +37,137 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
         []
     );
 
-    // Helper functions
-    const toggleSection = (key: keyof typeof expandedSections) => setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+    // ---------- Helpers ----------
+    const toggleSection = useCallback((key: keyof typeof expandedSections) => setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] })), [setExpandedSections]);
 
-    const handleCategoryChange = (categoryId: string) => {
-        const newCategory = selectedCategory === categoryId ? "" : categoryId;
-        setSelectedCategory(newCategory);
-        // Notify parent with updated values
-        onFiltersChange?.({
-            category: newCategory,
-            rating: selectedRating,
-            tags: selectedTags,
-            priceRange: priceRange,
-        });
-    };
+    const clampRange = useCallback((r: [number, number]): [number, number] => [Math.max(minPrice, Math.min(r[0], maxPrice)), Math.max(minPrice, Math.min(r[1], maxPrice))], [minPrice, maxPrice]);
 
-    const handleRatingChange = (rating: string) => {
-        const newRating = selectedRating === rating ? "" : rating;
-        setSelectedRating(newRating);
-        // Notify parent with updated values
-        onFiltersChange?.({
-            category: selectedCategory,
-            rating: newRating,
-            tags: selectedTags,
-            priceRange: priceRange,
-        });
-    };
+    // ---------- Read initial state from URL ----------
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
 
-    const handleTagToggle = (tag: string) => {
-        const newTags = selectedTags.includes(tag) ? selectedTags.filter((t) => t !== tag) : [...selectedTags, tag];
-        setSelectedTags(newTags);
-        // Notify parent with updated values
-        onFiltersChange?.({
-            category: selectedCategory,
-            rating: selectedRating,
-            tags: newTags,
-            priceRange: priceRange,
-        });
-    };
+        const category = params.get("category") || "";
+        const rating = params.get("rating") || "";
+        const tagsParam = params.get("tags") || ""; // comma-separated
+        const priceMin = params.get("min") ? Number(params.get("min")) : minPrice;
+        const priceMax = params.get("max") ? Number(params.get("max")) : maxPrice;
 
-    const handlePriceChange = (newPriceRange: [number, number]) => {
-        setPriceRange(newPriceRange);
-        // Notify parent with updated values
-        onFiltersChange?.({
-            category: selectedCategory,
-            rating: selectedRating,
-            tags: selectedTags,
-            priceRange: newPriceRange,
-        });
-    };
+        // Fix: Match category by ID or slug
+        let matchedCategory = "";
+        if (category) {
+            const foundCategory = categories.find((cat) => cat._id === category || cat.slug?.current === category);
+            matchedCategory = foundCategory?._id || category;
+        }
 
-    const clearAllFilters = () => {
+        setSelectedCategory(matchedCategory);
+        setSelectedRating(rating);
+        setSelectedTags(tagsParam ? tagsParam.split(",").filter(Boolean) : []);
+        setPriceRange(clampRange([priceMin, priceMax]));
+
+        // Immediately notify parent with initial filters to prevent flash
+        if (onFiltersChange && (matchedCategory || rating || tagsParam || priceMin !== minPrice || priceMax !== maxPrice)) {
+            onFiltersChange({
+                category: matchedCategory,
+                rating,
+                tags: tagsParam ? tagsParam.split(",").filter(Boolean) : [],
+                priceRange: clampRange([priceMin, priceMax]),
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // run once on mount
+
+    // ---------- Keep price in sync if props change ----------
+    useEffect(() => {
+        setPriceRange((prev) => clampRange(prev));
+    }, [minPrice, maxPrice, clampRange]);
+
+    // ---------- Notify parent (debounced for slider) ----------
+    const notifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const notifyParent = useCallback(
+        (immediate = false) => {
+            if (!onFiltersChange) return;
+            const payload = {
+                category: selectedCategory,
+                rating: selectedRating,
+                tags: selectedTags,
+                priceRange,
+            };
+
+            if (immediate) {
+                onFiltersChange(payload);
+                return;
+            }
+
+            if (notifyTimer.current) clearTimeout(notifyTimer.current);
+            notifyTimer.current = setTimeout(() => onFiltersChange(payload), 150);
+        },
+        [onFiltersChange, selectedCategory, selectedRating, selectedTags, priceRange]
+    );
+
+    useEffect(() => {
+        return () => {
+            if (notifyTimer.current) clearTimeout(notifyTimer.current);
+        };
+    }, []);
+
+    // ---------- Write state to URL (replace, not push) ----------
+    const writeUrl = useCallback(() => {
+        const params = new URLSearchParams();
+
+        if (selectedCategory) params.set("category", selectedCategory);
+        if (selectedRating) params.set("rating", selectedRating);
+        if (selectedTags.length) params.set("tags", selectedTags.join(","));
+        if (priceRange[0] !== minPrice) params.set("min", String(priceRange[0]));
+        if (priceRange[1] !== maxPrice) params.set("max", String(priceRange[1]));
+
+        const query = params.toString();
+        router.replace(query ? `?${query}` : "?", { scroll: false });
+    }, [router, selectedCategory, selectedRating, selectedTags, priceRange, minPrice, maxPrice]);
+
+    // Whenever filters change → update URL + notify parent
+    useEffect(() => {
+        writeUrl();
+        notifyParent(); // debounced
+    }, [writeUrl, notifyParent]);
+
+    // ---------- Handlers ----------
+    const handleCategoryChange = useCallback((categoryId: string) => {
+        setSelectedCategory((prev) => (prev === categoryId ? "" : categoryId));
+    }, []);
+
+    const handleRatingChange = useCallback((rating: string) => {
+        setSelectedRating((prev) => (prev === rating ? "" : rating));
+    }, []);
+
+    const handleTagToggle = useCallback((tag: string) => {
+        setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+    }, []);
+
+    const handlePriceChange = useCallback(
+        (v: number[]) => {
+            setPriceRange(clampRange([v[0], v[1]]));
+        },
+        [clampRange]
+    );
+
+    const clearAllFilters = useCallback(() => {
         setSelectedCategory("");
         setSelectedRating("");
         setSelectedTags([]);
         setPriceRange([minPrice, maxPrice]);
-        // Notify parent with cleared values
-        onFiltersChange?.({
-            category: "",
-            rating: "",
-            tags: [],
-            priceRange: [minPrice, maxPrice],
-        });
-    };
+        notifyParent(true); // immediate notify so parent clears now
+    }, [minPrice, maxPrice, notifyParent]);
 
-    // Check if there are any active filters
-    const hasActiveFilters = selectedCategory || selectedRating || selectedTags.length > 0 || 
-        (priceRange[0] !== minPrice || priceRange[1] !== maxPrice);
+    // ---------- Derived ----------
+    const hasActiveFilters = !!selectedCategory || !!selectedRating || selectedTags.length > 0 || priceRange[0] !== minPrice || priceRange[1] !== maxPrice;
 
-    // Sync price range when props change
-    useEffect(() => {
-        setPriceRange([minPrice, maxPrice]);
-    }, [minPrice, maxPrice]);
-
+    // ---------- UI ----------
     return (
         <aside className="flex-1 max-w-sm bg-white rounded-2xl p-6 shadow-[1px_1px_2px_#1B5FFE20] sticky top-6">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
                 {hasActiveFilters && (
-                    <button
-                        onClick={clearAllFilters}
-                        className="text-sm text-primary hover:text-primary/80 font-medium"
-                    >
+                    <button onClick={clearAllFilters} className="text-sm text-primary hover:text-primary/80 font-medium">
                         Clear All
                     </button>
                 )}
@@ -131,17 +182,21 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
 
                 {expandedSections.categories && (
                     <div className="space-y-3">
-                        {categories.map((category) => (
-                            <div key={category._id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                <input type="radio" id={category._id} name="category" value={category._id} checked={selectedCategory === category._id} onChange={() => handleCategoryChange(category._id)} className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2" />
-                                <Label htmlFor={category._id} className="text-sm text-gray-700 cursor-pointer flex-1">
-                                    {category.name}
-                                </Label>
-                                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                                    {category.count ?? 0}
-                                </Badge>
-                            </div>
-                        ))}
+                        {categories.map((category) => {
+                            const id = `cat-${category._id}`;
+                            const checked = selectedCategory === category._id;
+                            return (
+                                <div key={category._id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <input type="radio" id={id} name="category" value={category._id} checked={checked} onChange={() => handleCategoryChange(category._id)} className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2" />
+                                    <Label htmlFor={id} className="text-sm text-gray-700 cursor-pointer flex-1">
+                                        {category.name}
+                                    </Label>
+                                    <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                                        {category.count ?? 0}
+                                    </Badge>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -155,7 +210,7 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
 
                 {expandedSections.price && (
                     <div className="px-2">
-                        <Slider value={priceRange} onValueChange={(v) => handlePriceChange([v[0], v[1]])} max={maxPrice} min={minPrice} step={10} className="mb-4" />
+                        <Slider value={priceRange} onValueChange={(v) => handlePriceChange(v)} max={maxPrice} min={minPrice} step={10} className="mb-4" />
                         <div className="text-sm text-gray-600 text-center bg-gray-50 p-3 rounded-lg">
                             Price: ${priceRange[0]} - ${priceRange[1]}
                         </div>
@@ -172,19 +227,23 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
 
                 {expandedSections.rating && (
                     <div className="space-y-3">
-                        {ratingOptions.map((rating) => (
-                            <div key={rating.value} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                <input type="radio" id={`rating-${rating.value}`} name="rating" value={rating.value} checked={selectedRating === rating.value} onChange={() => handleRatingChange(rating.value)} className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2" />
-                                <Label htmlFor={`rating-${rating.value}`} className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className={`w-3 h-3 ${i < rating.stars ? "text-orange-400 fill-current" : "text-gray-300"}`} />
-                                        ))}
-                                    </div>
-                                    <span>{rating.label}</span>
-                                </Label>
-                            </div>
-                        ))}
+                        {ratingOptions.map((rating) => {
+                            const id = `rating-${rating.value}`;
+                            const checked = selectedRating === rating.value;
+                            return (
+                                <div key={rating.value} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <input type="radio" id={id} name="rating" value={rating.value} checked={checked} onChange={() => handleRatingChange(rating.value)} className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2" />
+                                    <Label htmlFor={id} className="text-sm text-gray-700 cursor-pointer flex items-center gap-2">
+                                        <div className="flex items-center gap-1">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <Star key={i} className={`w-3 h-3 ${i < rating.stars ? "text-orange-400 fill-current" : "text-gray-300"}`} />
+                                            ))}
+                                        </div>
+                                        <span>{rating.label}</span>
+                                    </Label>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -215,12 +274,12 @@ export default function FilterBar({ categories, tags, minPrice, maxPrice, onFilt
                 <div className="pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">Active Filters:</h4>
                     <div className="flex flex-wrap gap-2">
-                        {selectedCategory && (
+                        {!!selectedCategory && (
                             <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
                                 Category: {categories.find((c) => c._id === selectedCategory)?.name}
                             </Badge>
                         )}
-                        {selectedRating && (
+                        {!!selectedRating && (
                             <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
                                 Rating: {selectedRating}
                             </Badge>

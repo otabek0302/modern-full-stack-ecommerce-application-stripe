@@ -33,15 +33,6 @@ const Footer = () => {
             ],
         },
         {
-            title: "Proxy",
-            links: [
-                { name: "About", href: "/about" },
-                { name: "Shop", href: "/shop" },
-                { name: "Product", href: "/product" },
-                { name: "Faq", href: "/faq" },
-            ],
-        },
-        {
             title: "Categories",
             links: [
                 { name: "Fruit & Vegetables", href: "/products?category=fruit-and-vegetables" },
@@ -98,7 +89,7 @@ const Footer = () => {
             {/* Main Footer Content */}
             <div className="bg-gray-900 py-12">
                 <div className="container mx-auto px-4 lg:px-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
                         {/* Brand Column */}
                         <div className="lg:col-span-2">
                             <Card className="bg-transparent border-0 shadow-none">
@@ -173,21 +164,8 @@ const Footer = () => {
                         {/* Copyright */}
                         <div className="text-gray-600 text-sm font-normal text-center md:text-left">© Ecobazar eCommerce {currentYear}. All Rights Reserved</div>
 
-                        {/* Payment Methods */}
-                        <ul className="flex flex-wrap items-center justify-center gap-3">
-                            <Button type="button" variant="primary" size="sm" className="px-3 py-2 min-w-[100px] max-w-[200px]">
-                                <Apple className="w-4 h-4 mr-2" />
-                                <span className="text-white text-sm font-normal">Apple Pay</span>
-                            </Button>
-                            <Button type="button" variant="primary" size="sm" className="px-3 py-2 min-w-[100px] max-w-[200px]">
-                                <DollarSign className="w-4 h-4 mr-2" />
-                                <span className="text-white text-sm font-normal">VISA</span>
-                            </Button>
-                            <Button type="button" variant="primary" size="sm" className="px-3 py-2 min-w-[100px] max-w-[200px]">
-                                <DollarSign className="w-4 h-4 mr-2" />
-                                <span className="text-white text-sm font-normal">Mastercard</span>
-                            </Button>
-                        </ul>
+                        {/* Developed by */}
+                        <div className="text-gray-600 text-sm font-normal text-center md:text-left">Developed by <Link href="https://www.github.com/otabek02" className="text-primary hover:text-primary/90 transition-colors">Amonov Otabek</Link></div>
                     </div>
                 </div>
             </div>

@@ -64,7 +64,7 @@ const ProductsPage = () => {
                 const allTags = getUniqueTags(productsData);
                 setTags(allTags);
             } catch (error) {
-                console.error("Error fetching initial data:", error);
+                // Error fetching initial data - silent fail for production
             } finally {
                 setIsInitialLoading(false);
             }
