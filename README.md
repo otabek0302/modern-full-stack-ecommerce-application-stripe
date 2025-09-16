@@ -1,4 +1,4 @@
-![Ecobazar Screenshot](https://i.ibb.co/xx46P3j/Screenshot-2025-09-16-at-14-19-42.png)
+![Ecobazar Screenshot](https://i.postimg.cc/VNWT4kT5/Screenshot-2025-09-16-at-14-19-42.png)
 
 <!--
 Width and height styling is not natively supported in Markdown, but for best results in Markdown viewers, 
