@@ -1,3 +1,9 @@
+![Ecobazar Screenshot](https://i.ibb.co/whH688qz/Screenshot-2025-09-16-at-14-19-42.png)
+
+<!--
+Width and height styling is not natively supported in Markdown, but for best results in Markdown viewers, 
+the image will display at full width. For custom height (400px), use HTML if supported.
+-->
 # 🛒 Ecobazar - Modern E-Commerce Application
 
 A full-stack, modern e-commerce application built with Next.js 15, featuring a beautiful UI, responsive design, and integrated with Stripe for payments.
